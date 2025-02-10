@@ -44,14 +44,15 @@ function displayUsers(users) {
 
 document.getElementById('addUserForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const age = document.getElementById('age').value;
-
+  const user = {
+    name : document.getElementById('name').value,
+    email : document.getElementById('email').value,
+    age : parseInt(document.getElementById('age').value)
+  }
   const response = await fetch(`${apiUrl}/add-user`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, age }),
+    body: JSON.stringify(user),
   });
 
   if (response.ok) {
