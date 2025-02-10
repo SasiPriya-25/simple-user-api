@@ -5,15 +5,10 @@ const User = require('./models/User');
 require('dotenv').config()
 
 const app = express();
+app.use(express.json());
 app.use(cors())
 const PORT = process.env.PORT || 5000;
 
-// Dummy data
-const users = [
-    { id: 1, name: 'Alice', email: 'alice@example.com' },
-    { id: 2, name: 'Bob', email: 'bob@example.com' },
-    { id: 3, name: 'Charlie', email: 'charlie@example.com' },
-];
 
 // Route to get the list of users
 // Get all users
@@ -29,7 +24,8 @@ app.get('/get-users', async (req, res) => {
 
 app.post('/add-user', async (req, res) => {
     try {
-      const newUser = new User(req.body);
+      const { name, email, age } = req.body;
+      const newUser = new User({ name, email, age });
       await newUser.save();
       res.status(201).send(newUser);
     } catch (err) {
