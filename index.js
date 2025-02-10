@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require("cors")
+const mongoose = require("./db")
+const User = require('./models/User');
 require('dotenv').config()
 
 const app = express();
@@ -14,9 +16,28 @@ const users = [
 ];
 
 // Route to get the list of users
-app.get('/users', (req, res) => {
-    res.json(users);
-});
+// Get all users
+app.get('/get-users', async (req, res) => {
+    try {
+      const users = await User.find(); // Fetch all users
+      console.log(users)
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
+app.post('/add-user', async (req, res) => {
+    try {
+      const newUser = new User(req.body);
+      await newUser.save();
+      res.status(201).send(newUser);
+    } catch (err) {
+      res.status(500).send(err);
+    }
+  });
+
+
 
 // Start the server
 app.listen(PORT, () => {
