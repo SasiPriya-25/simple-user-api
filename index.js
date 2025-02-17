@@ -1,6 +1,7 @@
 // URL of your deployed API
-const apiUrl = "https://simple-user-api-8dub.onrender.com"; // Replace with your actual API URL
+//const apiUrl = "https://simple-user-api-8dub.onrender.com"; // Replace with your actual API URL
 //const apiUrl = "http://localhost:5000"
+const apiUrl = "https://simple-user-api-d3bxc6ghf6ejbqgd.centralus-01.azurewebsites.net"
 
 // Get the link and user list container
 const fetchUsersLink = document.getElementById("fetchUsers");
