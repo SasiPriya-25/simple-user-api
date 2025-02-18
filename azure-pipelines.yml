@@ -1,21 +1,30 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
-- main
+  branches:
+    include:
+      - main
 
-pool:
-  vmImage: windows-latest
+jobs:
+  - job: Build_and_Deploy
+    pool:
+      vmImage: 'windows-latest'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-  displayName: 'Install Node.js'
+    steps:
+    - task: Checkout@1
+      displayName: 'Checkout Code'
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Set up Node.js'
+    
+    - script: |
+        npm install
+      displayName: 'Install Dependencies'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'MyAzureSubscription'  # Replace with the name of your Azure service connection
+        appName: 'simple-user-api'
+        package: '$(System.DefaultWorkingDirectory)'
+        deploymentMethod: 'auto'
+      displayName: 'Deploy to Azure App Service'
