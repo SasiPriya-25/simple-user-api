@@ -1,0 +1,30 @@
+trigger:
+  branches:
+    include:
+      - main
+
+jobs:
+  - job: Build_and_Deploy
+    pool:
+      vmImage: 'windows-latest'
+
+    steps:
+    - task: Checkout@1
+      displayName: 'Checkout Code'
+    
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Set up Node.js'
+    
+    - script: |
+        npm install
+      displayName: 'Install Dependencies'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'MyAzureSubscription'  # Replace with the name of your Azure service connection
+        appName: 'simple-user-api'
+        package: '$(System.DefaultWorkingDirectory)'
+        deploymentMethod: 'auto'
+      displayName: 'Deploy to Azure App Service'
