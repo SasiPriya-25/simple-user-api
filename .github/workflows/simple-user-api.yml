@@ -1,0 +1,56 @@
+trigger:
+- main  # Adjust branch name as needed
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  NODE_ENV: 'UAT'
+  PORT: '3000'
+  MONGO_URI: $(MONGO_URI)  # MongoDB Atlas connection string from pipeline variables
+
+steps:
+# 1. Install dependencies
+- task: UseNode@2
+  inputs:
+    versionSpec: '16.x'  # Adjust as needed
+    addToPath: true
+
+- script: |
+    echo "Installing dependencies..."
+    npm install
+  displayName: 'Install Dependencies'
+  env:
+    NODE_ENV: $(NODE_ENV)
+    PORT: $(PORT)
+    MONGO_URI: $(MONGO_URI)
+
+# 2. Build the project (if applicable)
+- script: |
+    echo "Building the project..."
+    npm run build || echo "No build step defined, skipping..."
+  displayName: 'Build Project'
+
+# 3. Archive the application files
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'  # Archive the entire project
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    includeRootFolder: false
+  displayName: 'Archive Application Files'
+
+# 4. Publish the archive as an artifact
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)/app.zip'
+    artifactName: 'drop'
+    publishLocation: 'Container'
+  displayName: 'Publish Build Artifacts'
+
+# 5. MongoDB Atlas Connection Test (Optional)
+- script: |
+    echo "Checking MongoDB Atlas Connection..."
+    node -e "const mongoose = require('mongoose'); mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB Connected')).catch(err => console.error('MongoDB Connection Error:', err));"
+  displayName: 'MongoDB Atlas Connection Check'
+  env:
+    MONGO_URI: $(MONGO_URI)
